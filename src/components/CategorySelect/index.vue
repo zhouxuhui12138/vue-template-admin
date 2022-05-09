@@ -3,17 +3,17 @@
     <!-- 三级联动下拉菜单 -->
     <el-form :inline="true" :model="selectForm">
       <el-form-item label="一级分类">
-        <el-select v-model="selectForm.id1" placeholder="请选择" @change="handleSelect1">
+        <el-select v-model="selectForm.id1" placeholder="请选择" @change="handleSelect1" :disabled="isDisable">
           <el-option v-for="c1 in list1" :key="c1.id" :label="c1.name" :value="c1.id"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="二级分类">
-        <el-select v-model="selectForm.id2" placeholder="请选择" @change="handleSelect2">
+        <el-select v-model="selectForm.id2" placeholder="请选择" @change="handleSelect2" :disabled="isDisable">
           <el-option v-for="c2 in list2" :key="c2.id" :label="c2.name" :value="c2.id"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="三级分类">
-        <el-select v-model="selectForm.id3" placeholder="请选择" @change="handleSelect3">
+        <el-select v-model="selectForm.id3" placeholder="请选择" @change="handleSelect3" :disabled="isDisable">
           <el-option v-for="c3 in list3" :key="c3.id" :label="c3.name" :value="c3.id"></el-option>
         </el-select>
       </el-form-item>
@@ -25,16 +25,19 @@
 import { getCategoryOneListApi, getCategoryTwoListApi, getCategoryThreeListApi } from "@/api/product/attr"
 export default {
   name: "categorySelect",
+  props: {
+    isDisable: false,
+  },
   data() {
     return {
       list1: [],
       list2: [],
       list3: [],
       selectForm: {
-        id1: '',
-        id2: '',
-        id3: ''
-      }
+        id1: "",
+        id2: "",
+        id3: "",
+      },
     }
   },
   created() {
@@ -60,20 +63,20 @@ export default {
     },
     // category3
     async handleSelect3() {
-      this.$emit('category-change', this.selectForm)
+      this.$emit("category-change", this.selectForm)
     },
     // 清除分类数据或者id
     clear(flag) {
       if (flag === 1) {
-        this.selectForm.id2 = ''
-        this.selectForm.id3 = ''
+        this.selectForm.id2 = ""
+        this.selectForm.id3 = ""
         this.list2 = []
         this.list3 = []
       } else {
-        this.selectForm.id3 = ''
+        this.selectForm.id3 = ""
         this.list3 = []
       }
-    }
+    },
   },
 }
 </script>

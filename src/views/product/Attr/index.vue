@@ -1,7 +1,7 @@
 <template>
   <div class="spu">
     <el-card style="margin: 20px 0">
-      <CategorySelect @category-change="categoryChange" />
+      <CategorySelect @category-change="categoryChange" :isDisable="!tabIsVisible" />
     </el-card>
 
     <el-card>
@@ -29,7 +29,7 @@
           <el-table-column label="操作" align="center" width="200px">
             <template slot-scope="{ row }">
               <el-button type="warning" size="mini" icon="el-icon-edit" round @click="editAttr(row)">修改</el-button>
-              <el-button type="danger" size="mini" icon="el-icon-delete" round>删除</el-button>
+              <el-button type="danger" size="mini" icon="el-icon-delete" @click="delectAttrList" round>删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -48,25 +48,27 @@
         <el-table border style="margin: 20px 0" :data="attrInfo.attrValueList">
           <el-table-column label="序号" type="index" :width="80" align="center"> </el-table-column>
           <el-table-column label="属性值名称">
-            <template slot-scope="{ row }">
+            <template slot-scope="{ row, $index }">
               <el-input
                 v-model="row.valueName"
                 placeholder="请输入属性值"
                 size="mini"
                 v-if="row.flag"
-                @blur="look(row)"
-                @keyup.native.enter="look(row)"
-              ></el-input>
-              <div @click="row.flag = true" v-else>{{ row.valueName }}</div>
+                @blur="toLook(row)"
+                @keyup.native.enter="toLook(row)"
+                :ref="'input' + $index"
+              >
+              </el-input>
+              <div @click="toEdit(row, $index)" v-else>{{ row.valueName }}</div>
             </template>
           </el-table-column>
           <el-table-column label="操作">
-            <template slot-scope="{}">
-              <el-button type="danger" size="mini" icon="el-icon-delete"></el-button>
+            <template slot-scope="{ $index }">
+              <el-button type="danger" size="mini" icon="el-icon-delete" @click="deleteAttr($index)"></el-button>
             </template>
           </el-table-column>
         </el-table>
-        <el-button type="primary">保存</el-button>
+        <el-button type="primary" @click="submit" :disabled="!attrInfo.attrValueList.length > 0">保存</el-button>
         <el-button @click="tabIsVisible = true">取消</el-button>
       </div>
     </el-card>
@@ -75,7 +77,8 @@
 
 <script>
 import CategorySelect from "@/components/CategorySelect/index.vue"
-import { getAttrListApi } from "@/api/product/attr"
+import { getAttrListApi, updataAndAddAttr } from "@/api/product/attr"
+import { Message } from "element-ui"
 
 export default {
   name: "Attr",
@@ -85,6 +88,7 @@ export default {
       attrList: [],
       tabIsVisible: true,
       category3Id: 0,
+      idObj: {},
       // 添加或者修改属性服务器需要的data
       attrInfo: {
         attrName: "",
@@ -97,8 +101,13 @@ export default {
   created() {},
   methods: {
     // 子组件传过来的id
-    async categoryChange(idObj) {
-      const { id1, id2, id3 } = idObj
+    categoryChange(idObj) {
+      this.idObj = idObj
+      this.gettAttrList()
+    },
+    // 获取属性
+    async gettAttrList() {
+      const { id1, id2, id3 } = this.idObj
       this.category3Id = id3
       const res = await getAttrListApi(id1, id2, id3)
       this.attrList = res.data
@@ -120,19 +129,99 @@ export default {
         valueName: "",
         flag: true,
       })
+
+      this.$nextTick(() => {
+        const index = this.attrInfo.attrValueList.length - 1
+        this.$refs["input" + index].focus()
+      })
     },
     // 修改属性值
     editAttr(row) {
       this.tabIsVisible = false
       // 实现深拷贝
       const obj = JSON.stringify(row)
-      const clone = JSON.parse(obj)
+      let clone = JSON.parse(obj)
+      clone.attrValueList.map(item => {
+        item.flag = false
+      })
       this.attrInfo = clone
     },
-    // 切换input为span
-    look(row) {
+    // input失去焦点
+    toLook(row) {
+      // 不能为空
+      if (row.valueName.trim() === "") {
+        Message("输入的值不能为空")
+        return
+      }
+
+      // 不能重复
+      const isSome = this.attrInfo.attrValueList.some(item => {
+        if (row !== item) {
+          return row.valueName === item.valueName
+        }
+      })
+      if (isSome) {
+        Message("输入的值不能重复")
+        return
+      }
+
       row.flag = false
     },
+    // 点击div获取焦点
+    toEdit(row, index) {
+      row.flag = true
+      /**
+       * 因为点击div的时候 input这个dom刚生成 获取不到ref
+       * 所以需要nextTick 等到dom渲染完成后再对input进行操作
+       */
+      this.$nextTick(() => {
+        this.$refs["input" + index]?.focus()
+      })
+    },
+    // 删除属性
+    deleteAttr(index) {
+      this.$confirm("此操作将永久删除该文件, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          this.attrInfo.attrValueList.splice(index, 1)
+          this.$message({
+            type: "success",
+            message: "删除成功!",
+          })
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          })
+        })
+    },
+    // 提交
+    async submit() {
+      // 过滤掉不合适的
+      this.attrInfo.attrValueList = this.attrInfo.attrValueList.filter(item => {
+        if (item.valueName.trim() !== '') {
+          delete item.flag
+          return true
+        }
+      })
+
+      try {
+        await updataAndAddAttr(this.attrInfo)
+        Message({ type: 'success', message: '保存成功' })
+        this.tabIsVisible = true
+        this.gettAttrList()
+      } catch (error) {
+        Message({ type: 'error', message: '保存失败' })
+      }
+    },
+    // 删除属性列表
+    delectAttrList() {
+      Message('暂未接口')
+    }
   },
 }
 </script>
