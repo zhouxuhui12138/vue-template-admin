@@ -1,5 +1,5 @@
 <template>
-  <div class="spu">
+  <div class="attr">
     <el-card style="margin: 20px 0">
       <CategorySelect @category-change="categoryChange" :isDisable="!tabIsVisible" />
     </el-card>
