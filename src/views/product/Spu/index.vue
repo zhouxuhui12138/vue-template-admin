@@ -7,7 +7,14 @@
     <el-card>
       <!-- 展示区 -->
       <div v-show="scene === 0">
-        <el-button type="primary" style="margin-bottom: 20px" icon="el-icon-plus">添加SPU</el-button>
+        <el-button
+          type="primary"
+          :disabled="!category3Id"
+          @click="addSpu"
+          style="margin-bottom: 20px"
+          icon="el-icon-plus"
+          >添加SPU</el-button
+        >
 
         <!-- table -->
         <el-table :data="spuList" border stripe>
@@ -15,9 +22,9 @@
           <el-table-column label="spu名称" align="center" width="160" prop="spuName"></el-table-column>
           <el-table-column label="spu概述" prop="description"> </el-table-column>
           <el-table-column label="操作" align="center" width="250">
-            <template slot-scope="{}">
+            <template slot-scope="{ row }">
               <el-button type="success" title="添加" size="mini" icon="el-icon-plus"></el-button>
-              <el-button type="warning" title="编辑" size="mini" icon="el-icon-edit"></el-button>
+              <el-button type="warning" @click="editSpu(row)" title="编辑" size="mini" icon="el-icon-edit"></el-button>
               <el-button type="info" title="信息" size="mini" icon="el-icon-info"></el-button>
               <el-button type="danger" title="删除" size="mini" icon="el-icon-delete"></el-button>
             </template>
@@ -37,7 +44,7 @@
       </div>
 
       <!-- add or edit spu -->
-      <SpuForm v-show="scene === 1" />
+      <SpuForm @changeScene="changeScene" ref="spuFormRef" v-show="scene === 1" />
 
       <!-- add sku -->
       <SkuForm v-show="scene === 2" />
@@ -60,12 +67,25 @@ export default {
       limit: 5,
       total: 0,
       spuList: [],
-      category3Id: 0,
+      category3Id: "",
       scene: 0,
     }
   },
   created() {},
   methods: {
+    // spuForm自定义事件
+    changeScene(scene) {
+      this.scene = scene
+    },
+    // 添加spu
+    addSpu() {
+      this.scene = 1
+    },
+    // 修改spu
+    editSpu(row) {
+      this.$refs.spuFormRef?.initData(row)
+      this.scene = 1
+    },
     // 子组件传过来的id
     categoryChange({ id3 }) {
       this.category3Id = id3
