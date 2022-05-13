@@ -23,6 +23,7 @@
           list-type="picture-card"
           :on-preview="handlePictureCardPreview"
           :on-remove="handleRemove"
+          :on-success="handleSuccess"
         >
           <i class="el-icon-plus"></i>
         </el-upload>
@@ -115,12 +116,18 @@ export default {
     },
     // 图片删除
     handleRemove(file, fileList) {
-      console.log(file, fileList)
+      // 收集数据
+      this.imgList = fileList
     },
     // 图片预览
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url
       this.dialogVisible = true
+    },
+    // 图片保存成功
+    handleSuccess(res, file, fileList) {
+      // 保存数据
+      this.imgList = fileList
     },
   },
   computed: {
