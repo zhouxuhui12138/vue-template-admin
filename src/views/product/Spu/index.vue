@@ -1,7 +1,7 @@
 <template>
   <div class="spu">
     <el-card style="margin: 20px 0">
-      <CategorySelect @category-change="categoryChange" />
+      <CategorySelect @category-change="categoryChange" :isDisable="scene === 0 ? false : true" />
     </el-card>
 
     <el-card>

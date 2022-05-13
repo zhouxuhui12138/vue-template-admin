@@ -33,26 +33,51 @@
       </el-form-item>
       <!-- sale props -->
       <el-form-item label="销售属性">
-        <el-select v-model="spu.attrId" :placeholder="`还有${unSelectSaleAttr.length}个未选择`">
-          <el-option v-for="item in unSelectSaleAttr" :key="item.id" :value="item.id" :label="item.name"></el-option>
+        <el-select v-model="attrIdAndName" :placeholder="`还有${unSelectSaleAttr.length}个未选择`">
+          <el-option
+            v-for="item in unSelectSaleAttr"
+            :key="item.id"
+            :value="`${item.id},${item.name}`"
+            :label="item.name"
+          ></el-option>
         </el-select>
-        <el-button type="primary" style="margin-left: 20px" :disabled="!spu.attrId">添加销售属性</el-button>
+        <el-button type="primary" style="margin-left: 20px" @click="addSaleAttr" :disabled="!attrIdAndName"
+          >添加销售属性
+        </el-button>
       </el-form-item>
       <!-- table -->
       <el-table border :data="spu.spuSaleAttrList">
         <el-table-column label="序号" width="80" align="center" type="index"></el-table-column>
         <el-table-column label="属性名" width="100" align="center" prop="saleAttrName"></el-table-column>
         <el-table-column label="属性值名称列表">
-          <template slot-scope="{ row }">
-            <el-tag v-for="item in row.spuSaleAttrValueList" :key="item.id" closable :disable-transitions="false">
+          <template slot-scope="{ row, $index }">
+            <el-tag
+              @close="removeTag(row, index)"
+              v-for="(item, index) in row.spuSaleAttrValueList"
+              :key="item.id"
+              closable
+              :disable-transitions="false"
+            >
               {{ item.saleAttrValueName }}
             </el-tag>
-            <el-input v-if="undefined" size="small" class="input-new-tag"> </el-input>
-            <el-button v-else class="button-new-tag" size="small">添加</el-button>
+            <el-input
+              v-if="row.inputVisable"
+              v-model="row.inputValue"
+              size="small"
+              :ref="`input${$index}`"
+              class="input-new-tag"
+              @blur="onInputBlur(row)"
+            >
+            </el-input>
+            <el-button v-else class="button-new-tag" size="small" @click="addSaleAttrValue(row, $index)"
+              >添加</el-button
+            >
           </template>
         </el-table-column>
         <el-table-column label="操作" width="100" align="center">
-          <el-button type="danger" size="small" icon="el-icon-delete"></el-button>
+          <template slot-scope="{ $index }">
+            <el-button type="danger" size="small" @click="removeSaleAttr($index)" icon="el-icon-delete"></el-button>
+          </template>
         </el-table-column>
       </el-table>
       <!-- btn -->
@@ -66,6 +91,7 @@
 
 <script>
 import { getSpuApi, getSpuImgApi, getBrandApi, getSaleAttrApi } from "@/api/product/spu"
+import { Message } from "element-ui"
 
 export default {
   name: "SpuForm",
@@ -76,6 +102,8 @@ export default {
       brandList: [],
       imgList: [],
       saleAttrList: [],
+      // 收集未选择属性的id和名字
+      attrIdAndName: "",
       spu: {
         //三级分类的id
         category3Id: 0,
@@ -89,8 +117,6 @@ export default {
         spuImageList: [],
         //平台属性与属性值收集
         spuSaleAttrList: [],
-        // 收集未选择属性的id
-        attrId: "",
       },
     }
   },
@@ -113,6 +139,54 @@ export default {
         this.imgList = newImgList
         this.saleAttrList = res[3].data
       })
+    },
+    // 删除销售属性
+    removeSaleAttr(index) {
+      this.spu.spuSaleAttrList.splice(index, 1)
+    },
+    // 删除tag
+    removeTag(row, index) {
+      row.spuSaleAttrValueList.splice(index, 1)
+    },
+    // input失去焦点
+    onInputBlur(row) {
+      // 不能为空
+      if (row.inputValue.trim() === "") {
+        Message("不能为空")
+        return
+      }
+      // 不能重复
+      const isSome = row.spuSaleAttrValueList.some(item => {
+        return item.saleAttrValueName === row.inputValue
+      })
+      if (isSome) return
+      // 条件都成立 保存
+      const { baseSaleAttrId, inputValue: saleAttrValueName } = row
+      row.spuSaleAttrValueList.push({ baseSaleAttrId, saleAttrValueName })
+      row.inputVisable = false
+    },
+    // 添加销售属性值
+    addSaleAttrValue(row, index) {
+      this.$nextTick(() => {
+        setTimeout(() => {
+          this.$refs["input" + index].focus()
+        }, 100)
+      })
+      // 添加响应式数据 分别控制input显示隐藏和收集v-model的数据
+      this.$set(row, "inputVisable", true)
+      this.$set(row, "inputValue", "")
+    },
+    // 添加销售属性
+    addSaleAttr() {
+      const [baseSaleAttrId, saleAttrName] = this.attrIdAndName.split(",")
+      const newSaleAttr = {
+        baseSaleAttrId,
+        saleAttrName,
+        spuSaleAttrValueList: [],
+      }
+      this.spu.spuSaleAttrList.push(newSaleAttr)
+      // 清除
+      this.attrIdAndName = ""
     },
     // 图片删除
     handleRemove(file, fileList) {
@@ -154,6 +228,7 @@ export default {
 .el-tag + .el-tag {
   margin-left: 10px;
 }
+
 .button-new-tag {
   margin-left: 10px;
   height: 32px;
@@ -161,6 +236,7 @@ export default {
   padding-top: 0;
   padding-bottom: 0;
 }
+
 .input-new-tag {
   width: 90px;
   margin-left: 10px;
