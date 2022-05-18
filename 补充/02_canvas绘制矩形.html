@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      canvas {
+        border: 1px solid skyblue;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 想在canvas完成操作 必须通过javascript -->
+    <!-- 画布设置宽高需在标签的属性上 -->
+    <canvas width="800" height="400"></canvas>
+
+    <script>
+      const canvas = document.querySelector("canvas")
+      // 获取笔(canvas画布)
+      const context = canvas.getContext("2d")
+
+      // 绘制矩形 参数x, y, w, h
+      context.strokeRect(50, 250, 200, 150)
+
+      // 填充颜色
+      context.fillStyle = "skyblue"
+      // 开始填充
+      context.fill()
+      // 填充的矩形
+      context.fillRect(350, 50, 100, 350)
+    </script>
+  </body>
+</html>

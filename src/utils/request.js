@@ -30,13 +30,6 @@ service.interceptors.response.use(
     const res = response.data
 
     if (res.code !== 20000 && res.code !== 200) {
-      console.log(res)
-      Message({
-        message: res.data || "Error",
-        type: "error",
-        duration: 5 * 1000,
-      })
-
       if (res.code === 50008 || res.code === 50012 || res.code === 50014) {
         // to re-login
         MessageBox.confirm(
@@ -53,13 +46,15 @@ service.interceptors.response.use(
           })
         })
       }
-      return Promise.reject(new Error(res.message || "Error"))
+
+      console.log(res)
+      return Promise.reject(new Error(res.data || res.message || "Error"))
     } else {
       return res
     }
   },
   error => {
-    console.log(error.message) // for debug
+    console.log(error) // for debug
     if (error.message.includes('timeout')) {
       error.message = '网络异常'
     }

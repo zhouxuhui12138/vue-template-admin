@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      canvas {
+        border: 1px solid skyblue;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 想在canvas完成操作 必须通过javascript -->
+    <!-- 画布设置宽高需在标签的属性上 -->
+    <canvas width="800" height="400"></canvas>
+
+    <script>
+      const canvas = document.querySelector('canvas')
+      // 获取笔(canvas画布)
+      const context = canvas.getContext('2d')
+
+      // 起点
+      context.moveTo(100, 100)
+      // 其他点
+      context.lineTo(100, 300)
+      context.lineTo(300, 100)
+      // 起点与终点重合
+      context.closePath()
+
+      // 填充颜色
+      context.fillStyle = 'skyblue'
+      context.fill()
+
+      // 设置线段颜色和宽度
+      context.strokeStyle = 'red'
+      context.lineWidth = '2'
+
+      // 绘制
+      context.stroke()
+    </script>
+  </body>
+</html>

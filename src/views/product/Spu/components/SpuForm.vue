@@ -13,7 +13,7 @@
       </el-form-item>
       <!-- description -->
       <el-form-item label="SPU描述">
-        <el-input v-model="spu.description" placeholder="SPU名称" type="textarea" rows="4"></el-input>
+        <el-input v-model="spu.description" placeholder="SPU描述" type="textarea" rows="4"></el-input>
       </el-form-item>
       <!-- image -->
       <el-form-item label="SPU图片">
@@ -82,15 +82,15 @@
       </el-table>
       <!-- btn -->
       <el-form-item class="btns">
-        <el-button type="primary">保存</el-button>
-        <el-button @click="$emit('changeScene', 0)">取消</el-button>
+        <el-button @click="addOrUpdateSpu" type="primary">保存</el-button>
+        <el-button @click="cancel">取消</el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 
 <script>
-import { getSpuApi, getSpuImgApi, getBrandApi, getSaleAttrApi } from "@/api/product/spu"
+import { getSpuApi, getSpuImgApi, getBrandApi, getSaleAttrApi, addSpuApi, updateSpuApi } from "@/api/product/spu"
 import { Message } from "element-ui"
 
 export default {
@@ -121,8 +121,13 @@ export default {
     }
   },
   methods: {
-    // 初始化请求数据
-    initData({ id }) {
+    // 取消
+    cancel() {
+      Object.assign(this._data, this.$options.data())
+      this.$emit("changeScene", { scene: 0, flag: "" })
+    },
+    // 初始化修改spu数据
+    initUpdataSpuData({ id }) {
       Promise.all([getSpuApi(id), getBrandApi(), getSpuImgApi(id), getSaleAttrApi()]).then(res => {
         // 修改服务器传过来的数据
         const newImgList = res[2].data.map(item => {
@@ -138,6 +143,14 @@ export default {
         this.brandList = res[1].data
         this.imgList = newImgList
         this.saleAttrList = res[3].data
+      })
+    },
+    // 初始化添加spu数据
+    initAddSpuData(category3Id) {
+      this.spu.category3Id = category3Id
+      Promise.all([getBrandApi(), getSaleAttrApi()]).then(res => {
+        this.brandList = res[0].data
+        this.saleAttrList = res[1].data
       })
     },
     // 删除销售属性
@@ -170,7 +183,7 @@ export default {
       this.$nextTick(() => {
         setTimeout(() => {
           this.$refs["input" + index].focus()
-        }, 100)
+        }, 0)
       })
       // 添加响应式数据 分别控制input显示隐藏和收集v-model的数据
       this.$set(row, "inputVisable", true)
@@ -202,6 +215,36 @@ export default {
     handleSuccess(res, file, fileList) {
       // 保存数据
       this.imgList = fileList
+    },
+    // 保存或者修改spu
+    async addOrUpdateSpu() {
+      // 整理数据
+      this.spu.spuImageList = this.imgList.map(item => {
+        return {
+          imgName: item.name || item.imgName,
+          imgUrl: item.response?.data || item.imgUrl,
+        }
+      })
+
+      try {
+        if (this.spu.id) {
+          // 修改
+          await updateSpuApi(this.spu)
+          Message({ type: "success", message: "修改成功" })
+          this.$emit("changeScene", { scene: 0, flag: "修改" })
+        } else {
+          // 添加
+          await addSpuApi(this.spu)
+          Message({ type: "success", message: "添加成功" })
+          this.$emit("changeScene", { scene: 0, flag: "添加" })
+        }
+      } catch (error) {
+        Message({ type: "error", message: error.message })
+        this.$emit("changeScene", { scene: 0, flag: "" })
+      }
+
+      // 清除数据
+      Object.assign(this._data, this.$options.data())
     },
   },
   computed: {

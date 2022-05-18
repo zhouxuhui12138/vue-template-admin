@@ -57,3 +57,38 @@ export const getSaleAttrApi = () => {
     method: "get",
   })
 }
+
+/**
+ * 修改spu
+ * @param {object} spu spu信息
+ */
+export const updateSpuApi = spu => {
+  return request({
+    url: `/admin/product/updateSpuInfo`,
+    method: "post",
+    data: spu,
+  })
+}
+
+/**
+ * 添加spu
+ * @param {object} spu spu信息
+ */
+export const addSpuApi = spu => {
+  return request({
+    url: `/admin/product/saveSpuInfo`,
+    method: "post",
+    data: spu,
+  })
+}
+
+/**
+ * 删除spu
+ * @param {number} spuId spuId
+ */
+export const deleteSpuApi = spuId => {
+  return request({
+    url: `/admin/product/deleteSpu/${spuId}`,
+    method: "delete",
+  })
+}

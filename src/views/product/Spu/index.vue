@@ -23,10 +23,16 @@
           <el-table-column label="spu概述" prop="description"> </el-table-column>
           <el-table-column label="操作" align="center" width="250">
             <template slot-scope="{ row }">
-              <el-button type="success" title="添加" size="mini" icon="el-icon-plus"></el-button>
+              <el-button @click="addSku(row)" type="success" title="添加" size="mini" icon="el-icon-plus"></el-button>
               <el-button type="warning" @click="editSpu(row)" title="编辑" size="mini" icon="el-icon-edit"></el-button>
               <el-button type="info" title="信息" size="mini" icon="el-icon-info"></el-button>
-              <el-button type="danger" title="删除" size="mini" icon="el-icon-delete"></el-button>
+              <el-button
+                type="danger"
+                @click="deleteSpu(row)"
+                title="删除"
+                size="mini"
+                icon="el-icon-delete"
+              ></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -35,8 +41,9 @@
         <el-pagination
           layout="prev, pager, next, sizes, total"
           :total="total"
+          :current-page="page"
           :page-size="limit"
-          :page-sizes="[5, 10, 20, 30]"
+          :page-sizes="[5, 10, 20]"
           align="center"
           @current-change="handleCurrentChange"
           @size-change="handleSizeChange"
@@ -47,16 +54,17 @@
       <SpuForm @changeScene="changeScene" ref="spuFormRef" v-show="scene === 1" />
 
       <!-- add sku -->
-      <SkuForm v-show="scene === 2" />
+      <SkuForm v-show="scene === 2" ref="skuFormRef" />
     </el-card>
   </div>
 </template>
 
 <script>
 import CategorySelect from "@/components/CategorySelect/index.vue"
-import { getSpuListApi } from "@/api/product/spu"
+import { getSpuListApi, deleteSpuApi } from "@/api/product/spu"
 import SkuForm from "./components/SkuForm.vue"
 import SpuForm from "./components/SpuForm.vue"
+import { Message } from "element-ui"
 
 export default {
   name: "Spu",
@@ -69,26 +77,53 @@ export default {
       spuList: [],
       category3Id: "",
       scene: 0,
+      ids: {}
     }
   },
   created() {},
   methods: {
+    // 添加sku
+    addSku(row) {
+      this.scene = 2
+      this.$refs.skuFormRef.initData({ ...row, ...this.ids })
+    },
+    // 删除spu
+    async deleteSpu({ id }) {
+      try {
+        await deleteSpuApi(id)
+        Message({ type: "success", message: "删除成功" })
+        if (this.spuList.length >= 1) {
+          this.page = this.page - 1
+          this.gettAttrList()
+        } else {
+          this.gettAttrList()
+        }
+      } catch (error) {}
+    },
     // spuForm自定义事件
-    changeScene(scene) {
+    changeScene({ scene, flag }) {
       this.scene = scene
+      if (flag === "修改") {
+        this.gettAttrList()
+      } else {
+        this.page = 1
+        this.gettAttrList()
+      }
     },
     // 添加spu
     addSpu() {
+      this.$refs.spuFormRef.initAddSpuData(this.category3Id)
       this.scene = 1
     },
     // 修改spu
     editSpu(row) {
-      this.$refs.spuFormRef?.initData(row)
+      this.$refs.spuFormRef?.initUpdataSpuData(row)
       this.scene = 1
     },
     // 子组件传过来的id
-    categoryChange({ id3 }) {
-      this.category3Id = id3
+    categoryChange(ids) {
+      this.category3Id = ids.id3
+      this.ids = ids
       this.gettAttrList()
     },
     // 获取属性
