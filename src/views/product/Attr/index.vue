@@ -1,7 +1,7 @@
 <template>
   <div class="attr">
     <el-card style="margin: 20px 0">
-      <CategorySelect @category-change="categoryChange" :isDisable="!tabIsVisible" />
+      <CategorySelect @category-change="categoryChange" />
     </el-card>
 
     <el-card>
@@ -11,7 +11,6 @@
           type="primary"
           style="margin-bottom: 20px"
           icon="el-icon-plus"
-          :disabled="!attrList.length > 0"
           @click="openAttr"
           >添加属性</el-button
         >

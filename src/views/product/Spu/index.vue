@@ -54,7 +54,7 @@
       <SpuForm @changeScene="changeScene" ref="spuFormRef" v-show="scene === 1" />
 
       <!-- add sku -->
-      <SkuForm v-show="scene === 2" ref="skuFormRef" />
+      <SkuForm v-show="scene === 2" ref="skuFormRef" @changeScene="changeScene" />
     </el-card>
   </div>
 </template>
@@ -105,7 +105,7 @@ export default {
       this.scene = scene
       if (flag === "修改") {
         this.gettAttrList()
-      } else {
+      } else if (flag === '添加') {
         this.page = 1
         this.gettAttrList()
       }
