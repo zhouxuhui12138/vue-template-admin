@@ -25,7 +25,7 @@
             <template slot-scope="{ row }">
               <el-button @click="addSku(row)" type="success" title="添加" size="mini" icon="el-icon-plus"></el-button>
               <el-button type="warning" @click="editSpu(row)" title="编辑" size="mini" icon="el-icon-edit"></el-button>
-              <el-button type="info" title="信息" size="mini" icon="el-icon-info"></el-button>
+              <el-button type="info" @click="lookSku(row)" title="信息" size="mini" icon="el-icon-info"></el-button>
               <el-button
                 type="danger"
                 @click="deleteSpu(row)"
@@ -50,6 +50,20 @@
         />
       </div>
 
+      <!-- 查看sku的dialog -->
+      <el-dialog :title="`${skuTitle}的sku列表`" :visible.sync="skuVisable" width="60%" @close="dialogClose">
+        <el-table :data="skuList" v-loading="loading">
+          <el-table-column label="名称" prop="skuName"></el-table-column>
+          <el-table-column label="价格" prop="price"></el-table-column>
+          <el-table-column label="重量" prop="weight"></el-table-column>
+          <el-table-column label="默认图片">
+            <template slot-scope="{ row }">
+              <el-image :src="row.skuDefaultImg" :lazy="true"></el-image>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-dialog>
+
       <!-- add or edit spu -->
       <SpuForm @changeScene="changeScene" ref="spuFormRef" v-show="scene === 1" />
 
@@ -62,6 +76,7 @@
 <script>
 import CategorySelect from "@/components/CategorySelect/index.vue"
 import { getSpuListApi, deleteSpuApi } from "@/api/product/spu"
+import { getSkuApi } from "@/api/product/sku"
 import SkuForm from "./components/SkuForm.vue"
 import SpuForm from "./components/SpuForm.vue"
 import { Message } from "element-ui"
@@ -77,7 +92,11 @@ export default {
       spuList: [],
       category3Id: "",
       scene: 0,
-      ids: {}
+      ids: {},
+      loading: true,
+      skuVisable: false,
+      skuList: [],
+      skuTitle: "",
     }
   },
   created() {},
@@ -86,6 +105,21 @@ export default {
     addSku(row) {
       this.scene = 2
       this.$refs.skuFormRef.initData({ ...row, ...this.ids })
+    },
+    // 查看sku
+    async lookSku(row) {
+      this.skuVisable = true
+      this.skuTitle = row.spuName
+      const res = await getSkuApi(row.id)
+      this.skuList = res.data
+      this.loading = false
+    },
+    // 关闭dialog
+    dialogClose() {
+      // 清除数据和重新设置loading
+      this.loading = true
+      this.skuList = []
+      this.skuVisable = false
     },
     // 删除spu
     async deleteSpu({ id }) {
@@ -105,7 +139,7 @@ export default {
       this.scene = scene
       if (flag === "修改") {
         this.gettAttrList()
-      } else if (flag === '添加') {
+      } else if (flag === "添加") {
         this.page = 1
         this.gettAttrList()
       }

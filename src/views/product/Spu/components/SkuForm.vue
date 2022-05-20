@@ -43,15 +43,25 @@
         </el-form>
       </el-form-item>
       <el-form-item label="图片列表">
-        <el-table border>
+        <el-table border :data="imgList" @selection-change="handleSelectionChange"
+          >>
           <el-table-column type="selection" align="center"></el-table-column>
-          <el-table-column label="图片"></el-table-column>
-          <el-table-column label="名称"></el-table-column>
-          <el-table-column label="操作"></el-table-column>
+          <el-table-column label="图片" align="center">
+            <template slot-scope="{ row }">
+              <el-image :src="row.imgUrl" :lazy="true"></el-image>
+            </template>
+          </el-table-column>
+          <el-table-column label="名称" prop="imgName"> </el-table-column>
+          <el-table-column label="操作">
+            <template slot-scope="{ row }">
+              <el-button type="primary" @click="setDefault(row)" v-if="row.isDefalut === 0">设为默认</el-button>
+              <el-button size="mini" v-else>默认</el-button>
+            </template>
+          </el-table-column>
         </el-table>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary">保存</el-button>
+        <el-button type="primary" @click="submit">保存</el-button>
         <el-button @click="cancel">取消</el-button>
       </el-form-item>
     </el-form>
@@ -59,7 +69,7 @@
 </template>
 
 <script>
-import { getImageListApi, getAttrInfoApi, getSaleAttrApi } from "@/api/product/sku"
+import { getImageListApi, getAttrInfoApi, getSaleAttrApi, addSkuApi } from "@/api/product/sku"
 import { Message } from "element-ui"
 export default {
   data() {
@@ -67,6 +77,7 @@ export default {
       imgList: [],
       attrInfo: [],
       saleAttr: [],
+      selectImgList: [],
       spuName: "",
       // 需要发送给服务器的数据
       skuInfo: {
@@ -90,7 +101,6 @@ export default {
   methods: {
     // 获取数据
     initData(ids) {
-      console.log(ids)
       const { id1, id2, id3, id: skuId, tmId, spuName } = ids
       this.spuName = spuName
       this.skuInfo.category3Id = id3
@@ -99,9 +109,14 @@ export default {
 
       Promise.all([getImageListApi(skuId), getAttrInfoApi(id1, id2, id3), getSaleAttrApi(skuId)])
         .then(res => {
-          this.imgList = res[0].data
-          this.attrInfo = res[1].data
-          this.saleAttr = res[2].data
+          let imgList = res[0].data
+          imgList.forEach(item => {
+            item.isDefalut = 0
+          })
+          this.imgList = imgList
+          // 数据太多不好展示
+          this.attrInfo = res[1].data.splice(0, 2)
+          this.saleAttr = res[2].data.splice(0, 1)
         })
         .catch(err => {
           Message({ type: "error", message: err.message })
@@ -111,8 +126,55 @@ export default {
     cancel() {
       this.$emit("changeScene", { scene: 0, flag: "" })
     },
+    // 选中图片的回调
+    handleSelectionChange(imgList) {
+      this.selectImgList = imgList
+    },
+    // 排他
+    setDefault(row) {
+      this.imgList.forEach(item => {
+        item.isDefalut = 0
+      })
+      this.$set(row, "isDefalut", 1)
+      this.skuInfo.skuDefaultImg = row.imgUrl
+    },
+    // 保存
+    async submit() {
+      // 整理数据
+      this.attrInfo.forEach(item => {
+        if (item.attrIdAndValueId) {
+          const [attrId, valueId] = item.attrIdAndValueId.split(",")
+          this.skuInfo.skuAttrValueList.push({ attrId, valueId })
+        }
+      })
+      this.saleAttr.forEach(item => {
+        if (item.saleIdAndValueId) {
+          const [saleAttrId, saleAttrValueId] = item.saleIdAndValueId.split(",")
+          this.skuInfo.skuSaleAttrValueList.push({ saleAttrId, saleAttrValueId })
+        }
+      })
+      this.skuInfo.skuImageList.map(item => {
+        return {
+          imgName: item.imgName,
+          imgUrl: item.imgUrl,
+          isDefault: item.isDefault,
+          spuImgId: item.id,
+        }
+      })
+
+      const res = await addSkuApi(this.skuInfo)
+      if (res?.code === 200) {
+        Message({ type: "success", message: "成功" })
+        this.$emit("changeScene", { scene: 0, flag: "" })
+      }
+    },
   },
 }
 </script>
 
-<style></style>
+<style lang="scss" scoped>
+.el-image {
+  width: 100px;
+  height: 100px;
+}
+</style>

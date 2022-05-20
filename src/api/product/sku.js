@@ -35,3 +35,26 @@ export const getSaleAttrApi = (spuId) => {
   })
 }
 
+/**
+ * 添加sku
+ * @param {object} skuInfo
+ */
+export const addSkuApi = (skuInfo) => {
+  return request({
+    url: `/admin/product/saveSkuInfo`,
+    method: "post",
+    data: skuInfo
+  })
+}
+
+/**
+ * 查看spu下的sku
+ * @param {number} spuId
+ */
+export const getSkuApi = (spuId) => {
+  return request({
+    url: `/admin/product/findBySpuId/${spuId}`,
+    method: "get",
+  })
+}
+
