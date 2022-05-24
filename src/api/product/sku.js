@@ -58,3 +58,49 @@ export const getSkuApi = (spuId) => {
   })
 }
 
+/**
+ * 获取sku列表
+ * @param {number} page
+ * @param {number} limit
+ */
+export const getSkuListApi = (page, limit) => {
+  return request({
+    url: `/admin/product/list/${page}/${limit}`,
+    method: "get",
+  })
+}
+
+/**
+ * 上架sku
+ * @param {number} skuId
+ */
+export const upSkuApi = (skuId) => {
+  return request({
+    url: `/admin/product/onSale/${skuId}`,
+    method: "get",
+  })
+}
+
+/**
+ * 下架sku
+ * @param {number} skuId
+ */
+export const downSkuApi = (skuId) => {
+  return request({
+    url: `/admin/product/cancelSale/${skuId}`,
+    method: "get",
+  })
+}
+
+/**
+ * 获取sku详情
+ * @param {number} skuId
+ */
+export const getSkuDetailApi = (skuId) => {
+  return request({
+    url: `/admin/product/getSkuById/${skuId}`,
+    method: "get",
+  })
+}
+
+
