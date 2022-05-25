@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      canvas {
+        border: 1px solid skyblue;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas" width="800" height="500"></canvas>
+
+    <script>
+      const context = document.querySelector("canvas").getContext("2d")
+
+      // 标题
+      context.font = "20px 微软雅黑"
+      context.fillText("数据可视化", 140, 60)
+
+      // 绘制线段
+      context.moveTo(100, 100)
+      context.lineTo(100, 400)
+      context.lineTo(700, 400)
+
+      // 绘制其他线段
+      for (let i = 0; i < 5; i++) {
+        const y = 100 + 60 * i
+        const textY = 110 + i * 60
+        const text = 150 - i * 30
+        context.moveTo(100, y)
+        context.lineTo(700, y)
+        if (text > 100) {
+          context.fillText(text, 48, textY)
+        } else {
+          context.fillText(text, 58, textY)
+        }
+      }
+      context.fillText(0, 68, 400)
+
+      // x轴底部的线段
+      for (let i = 0; i < 3; i++) {
+        const x = 300 + i * 200
+        const textX = 175 + i * 200
+        context.moveTo(x, 400)
+        context.lineTo(x, 410)
+        context.fillText(`柱形${i + 1}`, textX, 425)
+      }
+
+      context.stroke()
+    </script>
+  </body>
+</html>
