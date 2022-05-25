@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      #main {
+        width: 800px;
+        height: 500px;
+      }
+    </style>
+    <script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
+  </head>
+  <body>
+    <div id="main"></div>
+
+    <script>
+      const myChart = echarts.init(document.querySelector("#main"))
+
+      const option = {
+        // 标题配置
+        title: {
+          text: '数据可视化',
+          textStyle: {
+            color: 'red'
+          },
+          left: 'center'
+        },
+        // x轴配置
+        xAxis: {
+          // 数据
+          data: ["Javascript", "PHP", "C##"],
+        },
+        // y轴配置
+        yAxis: {
+        },
+        // 显示配置
+        series: [{
+          // 显示类型
+          type: 'bar',
+          // 柱形图的数据
+          data: [30, 14, 8],
+          color: 'skyblue'
+        }]
+      }
+
+      myChart.setOption(option)
+    </script>
+  </body>
+</html>

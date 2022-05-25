@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .box1,
+      .box2 {
+        width: 600px;
+        height: 400px;
+        margin-bottom: 30px;
+      }
+    </style>
+    <script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
+  </head>
+  <body>
+    <div class="box1"></div>
+    <div class="box2"></div>
+    <script>
+      const myChart1 = echarts.init(document.querySelector(".box1"))
+      const myChart2 = echarts.init(document.querySelector(".box2"))
+
+      const option1 = {
+        // 标题配置
+        title: {
+          text: "数据可视化",
+          textStyle: {
+            color: "red",
+          },
+          left: "center",
+        },
+        // x轴配置
+        xAxis: {
+          // 数据
+          data: ["Javascript", "PHP", "C##"],
+        },
+        // y轴配置
+        yAxis: {},
+        // 显示配置
+        series: [
+          {
+            // 显示类型
+            type: "bar",
+            // 柱形图的数据
+            data: [30, 14, 8],
+            color: "skyblue",
+          },
+        ],
+      }
+
+      const option2 = {
+        title: {
+          text: "可视化2",
+          left: "center",
+          textStyle: {
+            color: "cyan",
+          },
+        },
+        xAxis: {
+          data: ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"],
+        },
+        yAxis: {},
+        series: [
+          {
+            color: "skyblue",
+            type: "line",
+            data: [4, 25, 13, 18, 15, 34, 17],
+          },
+        ],
+      }
+
+      myChart1.setOption(option1)
+      myChart2.setOption(option2)
+    </script>
+  </body>
+</html>
