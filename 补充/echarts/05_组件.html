@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
+  <style>
+    .box {
+      width: 100%;
+      height: 400px;
+    }
+  </style>
+</head>
+<body>
+  <div class="box"></div>
+</body>
+</html>
+
+<script>
+  const myChart = echarts.init(document.querySelector('.box'))
+
+  myChart.setOption({
+    title: {
+      text: 'echarts组件'
+    },
+    xAxis: {
+      data: ['电影', '游戏', '音乐']
+    },
+    yAxis: {},
+    // 调整布局
+    grid: {
+      left: 30,
+      right: 30
+    },
+    series: [
+      {
+        name: 'bar',
+        type: 'bar',
+        data: [10, 20, 30]
+      },
+      {
+        name: 'line',
+        type: 'line',
+        data: [20, 30, 40]
+      }
+    ],
+    // 提示组件
+    tooltip: {},
+    // 显示控制组件
+    legend: {
+      data: ['bar', 'line']
+    },
+    // 工具类组件
+    toolbox: {
+      show: true,
+      feature: {
+        saveAsImage: {}
+      }
+    }
+  })
+</script>

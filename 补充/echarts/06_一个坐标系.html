@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
+  <style>
+    .box {
+      width: 100%;
+      height: 400px;
+    }
+  </style>
+</head>
+<body>
+  <div class="box"></div>
+</body>
+</html>
+
+<script>
+  const myChart = echarts.init(document.querySelector('.box'))
+
+  myChart.setOption({
+    xAxis: {
+      type: 'category'
+    },
+    yAxis: {},
+    series: [
+      {
+        type: 'scatter',
+        data: [
+          [15, 20],
+          [5, 32],
+          [17, 27],
+          [19, 25],
+        ]
+      }
+    ]
+  })
+</script>
