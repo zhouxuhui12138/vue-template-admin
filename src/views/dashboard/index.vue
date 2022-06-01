@@ -1,30 +1,20 @@
 <template>
-  <div class="dashboard-container">
-    <div class="dashboard-text">name: {{ name }}</div>
+  <div class="dashboard">
+    <card />
+    <sale />
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import Card from './card/index.vue'
+import Sale from './sale/index.vue'
 
 export default {
+  components: { Card, Sale },
   name: 'Dashboard',
-  computed: {
-    ...mapGetters([
-      'name'
-    ])
-  }
 }
 </script>
 
 <style lang="scss" scoped>
-.dashboard {
-  &-container {
-    margin: 30px;
-  }
-  &-text {
-    font-size: 30px;
-    line-height: 46px;
-  }
-}
+
 </style>
