@@ -198,8 +198,10 @@ export default {
     background-color: red;
   }
 }
+</style>
 
-.el-drawer {
+<style>
+.el-drawer__body {
   overflow-y: auto;
 }
 </style>
