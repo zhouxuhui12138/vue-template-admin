@@ -6,9 +6,20 @@
 import * as echarts from "echarts"
 
 export default {
+  props: {
+    title: {
+      type: String,
+      default: '销售额'
+    }
+  },
+  data() {
+    return {
+      charts: null
+    }
+  },
   mounted() {
-    const charts = echarts.init(this.$refs.charts)
-    charts.setOption({
+    this.charts = echarts.init(this.$refs.charts)
+    this.charts.setOption({
       tooltip: {
         trigger: "axis",
         axisPointer: {
@@ -16,7 +27,7 @@ export default {
         },
       },
       title: {
-        text: '销售额趋势'
+        text: this.title + '趋势'
       },
       grid: {
         left: "3%",
@@ -49,6 +60,15 @@ export default {
       ],
     })
   },
+  watch: {
+    title() {
+      this.charts.setOption({
+        title: {
+          text: this.title + '趋势'
+        }
+      })
+    }
+  }
 }
 </script>
 

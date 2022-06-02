@@ -4,18 +4,20 @@
     <div slot="header" class="header">
       <!-- tab栏 -->
       <el-tabs class="tabs" v-model="active">
-        <el-tab-pane label="访问额" name="0"></el-tab-pane>
-        <el-tab-pane label="销售量" name="1"></el-tab-pane>
+        <el-tab-pane label="销售额" name="0"></el-tab-pane>
+        <el-tab-pane label="访问量" name="1"></el-tab-pane>
       </el-tabs>
       <!-- 右侧内容 -->
       <div class="right">
-        <span>本日</span>
-        <span>本周</span>
-        <span>本月</span>
-        <span>本年</span>
+        <span @click="setDate(1)">本日</span>
+        <span @click="setDate(2)">本周</span>
+        <span @click="setDate(3)">本月</span>
+        <span @click="setDate(4)">本年</span>
         <!-- 日期选择 -->
         <el-date-picker
           type="daterange"
+          v-model="date"
+          value-format="yyyy-MM-dd"
           class="date"
           size="mini"
           range-separator="-"
@@ -28,10 +30,11 @@
     <div class="content">
       <el-row :gutter="20">
         <el-col :span="18">
-          <bar-charts />
+          <!-- 左侧图表 -->
+          <bar-charts :title="title" />
         </el-col>
         <el-col :span="6" class="right">
-          <h3>门店销售排名</h3>
+          <h3>门店{{ title }}排名</h3>
           <ul>
             <li>
               <span class="index">1</span>
@@ -77,12 +80,46 @@
 
 <script>
 import BarCharts from "./barCharts.vue"
+import dayjs from "dayjs"
+
 export default {
   components: { BarCharts },
   data() {
     return {
-      active: 0,
+      active: "0",
+      date: [],
     }
+  },
+  computed: {
+    title() {
+      return this.active === "0" ? "销售额" : "访问量"
+    },
+  },
+  methods: {
+    setDate(flag) {
+      if (flag === 1) {
+        const day = dayjs().format("YYYY-MM-DD")
+        return (this.date = [day, day])
+      }
+
+      if (flag === 2) {
+        const start = dayjs().day(1).format("YYYY-MM-DD")
+        const end = dayjs().day(7).format("YYYY-MM-DD")
+        return (this.date = [start, end])
+      }
+
+      if (flag === 3) {
+        const start = dayjs().startOf("month").format("YYYY-MM-DD")
+        const end = dayjs().endOf("month").format("YYYY-MM-DD")
+        return (this.date = [start, end])
+      }
+
+      if (flag === 4) {
+        const start = dayjs().startOf("year").format("YYYY-MM-DD")
+        const end = dayjs().endOf("year").format("YYYY-MM-DD")
+        return (this.date = [start, end])
+      }
+    },
   },
 }
 </script>
@@ -115,7 +152,7 @@ export default {
     }
 
     .date {
-      width: 200px;
+      width: 260px;
       margin: 0 20px;
     }
   }
@@ -130,18 +167,17 @@ export default {
 
     li {
       list-style: none;
-      height: 34px;
-      line-height: 34px;
+      height: 40px;
 
       .index {
         display: inline-block;
         border-radius: 50%;
-        width: 25px;
-        height: 25px;
+        width: 22px;
+        height: 22px;
         background-color: cadetblue;
         color: #fff;
         text-align: center;
-        line-height: 25px;
+        line-height: 22px;
       }
 
       span {
