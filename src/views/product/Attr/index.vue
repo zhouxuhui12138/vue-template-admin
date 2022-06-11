@@ -7,13 +7,7 @@
     <el-card>
       <!-- 展示区 -->
       <div v-show="tabIsVisible === true">
-        <el-button
-          type="primary"
-          style="margin-bottom: 20px"
-          icon="el-icon-plus"
-          @click="openAttr"
-          >添加属性</el-button
-        >
+        <el-button type="primary" style="margin-bottom: 20px" icon="el-icon-plus" @click="openAttr">添加属性</el-button>
 
         <el-table :data="attrList" border stripe>
           <el-table-column label="序号" type="index" width="80px" align="center"></el-table-column>
@@ -202,7 +196,7 @@ export default {
     async submit() {
       // 过滤掉不合适的
       this.attrInfo.attrValueList = this.attrInfo.attrValueList.filter(item => {
-        if (item.valueName.trim() !== '') {
+        if (item.valueName.trim() !== "") {
           delete item.flag
           return true
         }
@@ -210,17 +204,17 @@ export default {
 
       try {
         await updataAndAddAttr(this.attrInfo)
-        Message({ type: 'success', message: '保存成功' })
+        Message({ type: "success", message: "保存成功" })
         this.tabIsVisible = true
         this.gettAttrList()
       } catch (error) {
-        Message({ type: 'error', message: '保存失败' })
+        Message({ type: "error", message: error.data })
       }
     },
     // 删除属性列表
     delectAttrList() {
-      Message('暂未接口')
-    }
+      Message("暂未接口")
+    },
   },
 }
 </script>

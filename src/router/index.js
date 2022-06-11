@@ -34,6 +34,28 @@ export const constantRoutes = [
   },
 
   {
+    name: "Acl",
+    path: "/acl",
+    component: Layout,
+    redirect: "/acl/user",
+    meta: { title: "权限管理", icon: "el-icon-lock" },
+    children: [
+      {
+        name: "User",
+        path: "/acl/user",
+        component: () => import("@/views/acl/user/index"),
+        meta: { title: "用户管理" },
+      },
+      {
+        name: "Role",
+        path: "/acl/role",
+        component: () => import("@/views/acl/role/index"),
+        meta: { title: "角色管理" },
+      },
+    ],
+  },
+
+  {
     path: "/product",
     component: Layout,
     name: "Product",

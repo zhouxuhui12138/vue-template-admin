@@ -47,23 +47,13 @@ service.interceptors.response.use(
         })
       }
 
-      console.log(res)
-      return Promise.reject(new Error(res.data || res.message || "Error"))
+      return Promise.reject(res)
     } else {
       return res
     }
   },
   error => {
-    console.log(error) // for debug
-    if (error.message.includes('timeout')) {
-      error.message = '网络异常'
-    }
-
-    Message({
-      message: error.message,
-      type: "error",
-      duration: 5 * 1000,
-    })
+    console.log(err)
     return Promise.reject(error)
   }
 )
